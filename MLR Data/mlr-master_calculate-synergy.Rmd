@@ -1,0 +1,253 @@
+---
+title: "R Notebook"
+output: html_notebook
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(synergyfinder)
+library(tidyverse)
+
+`%notin%` <- Negate(`%in%`)
+
+getwd()
+load("data/mlr.master.RData")
+```
+
+```{r}
+conflicts_prefer(dplyr::select)
+conflicts_prefer(dplyr::filter)
+conflicts_prefer(dplyr::mutate)
+```
+
+# Functions
+```{r}
+# format data for synergyfinder
+# data is in replicate, so calculate average response and then normalize values to the highest avg response and finally convert to percentage
+conv_cytok_to_inhib <- function(data) {
+  
+  # determine unique concentration pairs, since results are in replicate
+  temp <- data
+  temp$unique_conc <- paste0(signif(temp$conc1, 4), "_", signif(temp$conc2, 4))
+  temp$unique_conc <- factor(temp$unique_conc, levels = unique(temp$unique_conc))
+  value <- numeric(0)
+  
+  # calculate mean value for each concentration pair
+  for (i in levels(temp$unique_conc)) {
+    
+    value <- c(value, mean(temp$response_norm[temp$unique_conc == i]))
+    # print(i)
+    
+  }
+  
+  # format table for synergyfinder
+  temp2 <- unique(temp[, c("block_id", "assay_type", "assay_number", "drug1", "drug2", "conc1", "conc2", "conc_unit1", "conc_unit2", "analyte", "donor_1_id", "donor_2_id")])
+  colnames(temp2) <- c("block_id", "assay_type", "assay_number", "drug1", "drug2", "conc1", "conc2", "conc_unit1", "conc_unit2", "analyte", "donor_1_id", "donor_2_id")
+  temp2$avg_response <- value
+  
+  # normalize response to highest value and convert to percent
+  max_total <- max(temp2$avg_response, na.rm = TRUE)
+  print(max_total)
+  temp2$response <- (temp2$avg_response/max_total)*100
+  
+  return(temp2)
+}
+```
+
+
+# Subset columns to df of interest
+```{r}
+head(mlr.master)
+
+mlr.df <- mlr.master %>% 
+  ungroup() %>% 
+  select(assay_type, assay_number, 
+         treatment_1, concentration_1, treatment_2, concentration_2, 
+         analyte, analyte_value,
+         donor_1_id, donor_2_id)
+
+dim(mlr.df)
+
+# how many unique analyte readings from the experiments?
+unique.experiments <- mlr.df %>% 
+  select(assay_type, assay_number, treatment_1, treatment_2, analyte, donor_1_id, donor_2_id) %>% 
+  unique() %>% 
+  drop_na() # 264
+
+```
+
+# Normalize each donor pair to corresponding no-treatment controls
+```{r}
+mlr.normalized <- NULL
+
+for(i in 1:nrow(unique.experiments)) {
+  # i = 235
+  unique.experiments[i, ]
+  
+  dataxls0 <- mlr.df %>% 
+    filter(assay_number == unique.experiments$assay_number[i], 
+           assay_type == unique.experiments$assay_type[i],
+           treatment_1 == unique.experiments$treatment_1[i],
+           treatment_2 == unique.experiments$treatment_2[i],
+           analyte == unique.experiments$analyte[i], 
+           donor_1_id == unique.experiments$donor_1_id[i],
+           donor_2_id == unique.experiments$donor_2_id[i]
+    )
+  
+  # format data for synergyfinder
+  df0.temp <- dataxls0 %>%
+    add_column(block_id = i, .before = 1) %>%
+    mutate(conc_unit1 = "ug/mL") %>%
+    mutate(conc_unit2 = "ug/mL")
+  
+  dataxls <- df0.temp %>%
+    select(block_id,
+           drug1 = treatment_1,
+           drug2 = treatment_2,
+           conc1 = concentration_1,
+           conc2 = concentration_2,
+           analyte,
+           response = analyte_value,
+           conc_unit1,
+           conc_unit2,
+           donor_1_id,
+           donor_2_id,
+           assay_type, assay_number) %>%
+    drop_na()
+  
+  # View(dataxls)
+  
+  # change drug names into factors
+  dataxls$drug1 <- as.factor(dataxls$drug1)
+  dataxls$drug2 <- as.factor(dataxls$drug2)
+  
+  # normalize the data to no treatment control mean, by donor
+  control <- dataxls %>% filter(conc1 == 0 & conc2 == 0) # get all control samples
+  norm <- mean(control$response) # calculate mean of controls
+  dataxls$response_norm <- dataxls$response - norm
+  
+  mlr.normalized <- rbind(mlr.normalized, dataxls)
+}
+
+# remove results where data could not be normalized
+mlr.normalized <- mlr.normalized %>% 
+  filter(!is.na(response_norm))
+
+
+# remove experiments where readouts are too few (i.e., > 10 rows)
+filter.out <- mlr.normalized %>% 
+  group_by(block_id) %>% 
+  summarise(num_readouts = n()) %>% 
+  filter(num_readouts < 10)
+
+mlr.normalized <- mlr.normalized %>% 
+  filter(block_id %notin% filter.out$block_id)
+```
+
+
+# Convert cytokine values to % induction
+- avg_response is mean value of replicate readouts (not yet converted to % induction)
+- response is % induction values
+```{r}
+# hold %induction values that synergyfinder takes
+df.induction <- NULL
+
+unique.blocks <- unique(mlr.normalized$block_id) # 240
+
+for(i in unique.blocks) {
+  # average any technical replicates and convert to percent induction values
+  df <- mlr.normalized %>% 
+    filter(block_id == i) %>% 
+    conv_cytok_to_inhib(.)
+  
+  df.induction <- rbind(df.induction, df)
+}
+# View(df.induction)
+
+# remove results where response is lower than no-treatment
+## caused when highest value is zero (from no treatment, cannot divide by zero)
+df.induction %>% 
+  filter(is.na(response) | is.infinite(response)) # 222
+
+df.induction <- df.induction %>% 
+  filter(!is.na(response) & !is.infinite(response)) # 9135 - 222 = 8913
+```
+
+# Run synergyfinder
+```{r}
+# Reshape the data to be useable by synergyfinder
+res <- ReshapeData(
+  data = df.induction,
+  data_type = "inhibition",
+  impute = TRUE,
+  impute_method = NULL,
+  noise = TRUE,
+  seed = 1)
+# 196 missing values are imputed
+
+# Calculate synergy
+res <- CalculateSynergy(
+  data = res,
+  method = c("ZIP", "HSA", "Bliss", "Loewe"),
+  Emin = NA,
+  Emax = NA,
+  correct_baseline = "non")
+str(res$synergy_scores)
+
+View(res$drug_pairs)
+View(res$response)
+View(res$synergy_scores)
+```
+
+
+# Merge drug pair synergy results with df.induction
+```{r}
+drug.pairs <- full_join(
+  df.induction %>% 
+    select(block_id, assay_type, assay_number, drug1, drug2, analyte, donor_1_id, donor_2_id) %>% 
+    unique(),
+  res$drug_pairs %>% 
+    mutate(
+      ZIP_synergy_p_value = round(as.numeric(ZIP_synergy_p_value), 3),
+      HSA_synergy_p_value = round(as.numeric(HSA_synergy_p_value), 3),
+      Bliss_synergy_p_value = round(as.numeric(Bliss_synergy_p_value), 3),
+      Loewe_synergy_p_value = round(as.numeric(Loewe_synergy_p_value), 3)
+    )
+)
+
+View(drug.pairs)
+
+write_csv(drug.pairs, file = "~/Genmab/mlr_app/data/mlr-master_drug-pairs.csv")
+
+# filter to relevant columns for Han
+drug.pairs.subset <- drug.pairs %>% 
+  filter(analyte %in% c("IL-2", "IFNg", "TNF-a")) %>% 
+  select(block_id, assay_type, assay_number, drug1, drug2, analyte, donor_1_id, donor_2_id, HSA_synergy) %>% 
+  rename(mean_HSA_synergy = HSA_synergy)
+
+write_csv(drug.pairs.subset, file = "~/Genmab/mlr_app/data/mlr-master_drug-pairs_subset.csv")
+```
+
+
+# Merge synergy scores with df.induction
+```{r}
+synergy.scores <- full_join(
+  df.induction %>% 
+    rename(response_readout = avg_response,
+                response_induction = response), 
+  res$synergy_scores, 
+  by = c("block_id", "conc1", "conc2"))
+
+View(synergy.scores)
+
+write_csv(synergy.scores, file = "~/Genmab/mlr_app/data/mlr-master_synergy-scores.csv")
+
+# filter to relevant columns for Han
+synergy.scores.subset <- synergy.scores %>% 
+  filter(analyte %in% c("IL-2", "IFNg", "TNF-a")) %>% 
+  select(block_id, assay_type, assay_number, drug1, conc1, drug2, conc2, analyte, donor_1_id, donor_2_id, response_readout, response_induction, HSA_synergy)
+
+write_csv(synergy.scores.subset, file = "~/Genmab/mlr_app/data/mlr-master_synergy-scores_subset.csv")
+```
+
