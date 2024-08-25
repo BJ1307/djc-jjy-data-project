@@ -1,5 +1,5 @@
 import pandas as pd
-mlr_data = pd.read_csv("/Users/ericdai/Documents/GitHub/djc-jjy-data-project/MLR Data/mlr_data.csv")
+mlr_data = pd.read_csv("")
 
 """
 This part of code is adapted from https://matplotlib.org/stable/plot_types/3D/scatter3d_simple.html#sphx-glr-plot-types-3d-scatter3d-simple-py
