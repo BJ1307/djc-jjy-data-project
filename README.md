@@ -17,3 +17,16 @@ Objective: To develop and validate predictive models using different machine lea
 Biomarker Identification:
 Question: Which cytokines serve as the best biomarkers for indicating the immune response in MLR to different doses of treatments?
 Objective: To identify key cytokines that correlate strongly with treatment doses and could potentially be used as biomarkers in monitoring immune response.
+
+We are helped by:
+Taketa, K., & Pogell, B. M. (1965). Allosteric inhibition of rat liver fructose 1, 6-diphosphatase by adenosine 5'-monophosphate. Journal of Biological Chemistry, 240(2), 651-662.
+
+Altszyler, E., Ventura, A. C., Colman-Lerner, A., & Chernomoretz, A. (2017). Ultrasensitivity in signaling cascades revisited: Linking local and global ultrasensitivity estimations. PloS one, 12(6), e0180083. https://doi.org/10.1371/journal.pone.0180083
+
+https://www.youtube.com/watch?v=QpzMWQvxXWk
+https://www.youtube.com/watch?v=3CCkeFShB3U
+https://www.youtube.com/watch?v=kE_I-5rxtEA&t=164s
+https://matplotlib.org/stable/plot_types/3D/scatter3d_simple.html#sphx-glr-plot-types-3d-scatter3d-simple-py
+https://matplotlib.org/stable/
+
+We also acknowledge Victor for helpful conversations
