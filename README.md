@@ -23,10 +23,20 @@ Taketa, K., & Pogell, B. M. (1965). Allosteric inhibition of rat liver fructose 
 
 Altszyler, E., Ventura, A. C., Colman-Lerner, A., & Chernomoretz, A. (2017). Ultrasensitivity in signaling cascades revisited: Linking local and global ultrasensitivity estimations. PloS one, 12(6), e0180083. https://doi.org/10.1371/journal.pone.0180083
 
+Vakil, V., & Trappe, W. (2019). Drug Combinations: Mathematical Modeling and Networking Methods. Pharmaceutics, 11(5), 208. https://doi.org/10.3390/pharmaceutics11050208
+
 https://www.youtube.com/watch?v=QpzMWQvxXWk
+
 https://www.youtube.com/watch?v=3CCkeFShB3U
+
 https://www.youtube.com/watch?v=kE_I-5rxtEA&t=164s
+
 https://matplotlib.org/stable/plot_types/3D/scatter3d_simple.html#sphx-glr-plot-types-3d-scatter3d-simple-py
+
 https://matplotlib.org/stable/
 
+https://matplotlib.org/stable/plot_types/basic/scatter_plot.html#sphx-glr-plot-types-basic-scatter-plot-py
+
+
 We also acknowledge Victor for helpful conversations
+
