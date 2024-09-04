@@ -13,7 +13,7 @@ from sklearn.metrics import mean_absolute_error as mae
 
 # Cleaning the data
 # This part of code is adapted from (helped by) https://www.kaggle.com/code/dansbecker/random-forests
-data = pd.read_csv("/Users/ericdai/Documents/GitHub/djc-jjy-data-project/archive/all_reviews/all_reviews.csv", nrows=100)
+data = pd.read_csv("", nrows=100)
 # y = data.copy().voted_up
 # cols_used = []
 # X = data.copy()[cols_used]
