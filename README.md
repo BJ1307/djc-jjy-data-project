@@ -25,6 +25,8 @@ Altszyler, E., Ventura, A. C., Colman-Lerner, A., & Chernomoretz, A. (2017). Ult
 
 Vakil, V., & Trappe, W. (2019). Drug Combinations: Mathematical Modeling and Networking Methods. Pharmaceutics, 11(5), 208. https://doi.org/10.3390/pharmaceutics11050208
 
+Neubig, R. R., Spedding, M., Kenakin, T., & Christopoulos, A. (2003). International Union of Pharmacology Committee on Receptor Nomenclature and Drug Classification. XXXVIII. Update on terms and symbols in quantitative pharmacology. Pharmacological reviews, 55(4), 597-606.
+
 https://www.youtube.com/watch?v=QpzMWQvxXWk
 
 https://www.youtube.com/watch?v=3CCkeFShB3U
@@ -37,6 +39,9 @@ https://matplotlib.org/stable/
 
 https://matplotlib.org/stable/plot_types/basic/scatter_plot.html#sphx-glr-plot-types-basic-scatter-plot-py
 
+https://en.wikipedia.org/wiki/Hill_equation_(biochemistry)#Hill_coefficient
+
+https://en.wikipedia.org/wiki/Dose%E2%80%93response_relationship
 
 We also acknowledge Victor for helpful conversations
 
