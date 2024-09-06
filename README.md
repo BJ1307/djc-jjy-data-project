@@ -1,3 +1,5 @@
+NOTE: This is NOT a finished project
+
 Dose-Response Relationship:
 Question: How do different concentrations of the two treatments affect cytokine production levels in the MLR assay?
 Objective: To quantify the dose-response relationship and determine if there's a threshold or saturation point where increasing the dose no longer significantly increases cytokine levels.
