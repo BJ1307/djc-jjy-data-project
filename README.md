@@ -29,6 +29,10 @@ Vakil, V., & Trappe, W. (2019). Drug Combinations: Mathematical Modeling and Net
 
 Neubig, R. R., Spedding, M., Kenakin, T., & Christopoulos, A. (2003). International Union of Pharmacology Committee on Receptor Nomenclature and Drug Classification. XXXVIII. Update on terms and symbols in quantitative pharmacology. Pharmacological reviews, 55(4), 597-606.
 
+Han, J., & Moraga, C. (1995, June). The influence of the sigmoid function parameters on the speed of backpropagation learning. In International workshop on artificial neural networks (pp. 195-201). Berlin, Heidelberg: Springer Berlin Heidelberg.
+
+https://en.wikipedia.org/wiki/Sigmoid_function
+
 https://www.youtube.com/watch?v=QpzMWQvxXWk
 
 https://www.youtube.com/watch?v=3CCkeFShB3U
