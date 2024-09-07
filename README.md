@@ -33,6 +33,8 @@ Han, J., & Moraga, C. (1995, June). The influence of the sigmoid function parame
 
 https://en.wikipedia.org/wiki/Sigmoid_function
 
+https://en.wikipedia.org/wiki/Logistic_function
+
 https://www.youtube.com/watch?v=QpzMWQvxXWk
 
 https://www.youtube.com/watch?v=3CCkeFShB3U
